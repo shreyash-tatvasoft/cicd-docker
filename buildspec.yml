@@ -1,0 +1,28 @@
+version: 0.2
+
+env:
+  variables:
+    ECR_URI: "979566283645.dkr.ecr.ap-south-1.amazonaws.com/simple-node-app"
+    IMAGE_NAME: "simple-node-app"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_NAME .
+      - docker tag $IMAGE_NAME:latest $ECR_URI:latest
+
+  post_build:
+    commands:
+      - echo Pushing image to ECR...
+      - docker push $ECR_URI:latest
+
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/run_container.sh
