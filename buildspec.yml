@@ -30,4 +30,7 @@ phases:
 artifacts:
   files:
     - appspec.yml
-    - imagedefinitions.json
+    - scripts/**
+    - Dockerfile
+    - other-app-files
+
