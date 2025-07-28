@@ -2,27 +2,31 @@ version: 0.2
 
 env:
   variables:
-    ECR_URI: "979566283645.dkr.ecr.ap-south-1.amazonaws.com/simple-node-app"
-    IMAGE_NAME: "simple-node-app"
+    AWS_REGION: ap-south-1
+    IMAGE_REPO_NAME: simple-node-app
 
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 979566283645.dkr.ecr.$AWS_REGION.amazonaws.com
+      - REPO_URI=979566283645.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build -t $IMAGE_NAME .         # ✅ USE dot here!
-      - docker tag $IMAGE_NAME:latest $ECR_URI:latest
+      - echo Building Docker image...
+      - docker build -t $REPO_URI:$IMAGE_TAG .
+      - docker tag $REPO_URI:$IMAGE_TAG $REPO_URI:latest
 
   post_build:
     commands:
-      - echo Pushing image to ECR...
-      - docker push $ECR_URI:latest
+      - echo Pushing Docker image to ECR...
+      - docker push $REPO_URI:$IMAGE_TAG
+      - docker push $REPO_URI:latest
+      - echo Writing imagedefinitions.json for ECS...
+      - printf '[{"name":"my-app","imageUri":"%s"}]' $REPO_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
-    - appspec.yml
-    - scripts/run_container.sh
+    - imagedefinitions.json
