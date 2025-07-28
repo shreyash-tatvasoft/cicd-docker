@@ -2,8 +2,8 @@ version: 0.0
 os: linux
 
 files:
-  - source: scripts/
-    destination: /home/ec2-user/scripts/
+  - source: /
+    destination: /home/ec2-user/Simple-Node-App
 
 hooks:
   AfterInstall:

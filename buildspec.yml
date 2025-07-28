@@ -33,5 +33,3 @@ artifacts:
     - dist/**/*
     - scripts/**/*
     - package.json
-    - Dockerfile
-
