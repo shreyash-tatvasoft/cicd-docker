@@ -10,7 +10,7 @@ RUN npm install
 # Copy source files
 COPY tsconfig.json ./
 COPY src ./src
-COPY public ./public  # 👈 static files must be available at runtime
+COPY public ./public
 
 # Build TypeScript
 RUN npm run build
