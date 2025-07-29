@@ -2,7 +2,7 @@
 
 echo "Stopping existing Docker container..."
 
-docker stop nodeapp || true
-docker rm nodeapp || true
+docker stop simple-node-app || true
+docker rm simple-node-app || true
 
-echo "Stopped nodeapp container if it was running."
+echo "Stopped simple-node-app container if it was running."
