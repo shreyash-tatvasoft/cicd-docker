@@ -17,13 +17,13 @@ echo "Pulling Docker image..."
 docker pull $IMAGE
 
 echo "Stopping old container if it exists..."
-docker stop nodeapp || true
-docker rm nodeapp || true
+docker stop simple-node-app || true
+docker rm simple-node-app || true
 
 echo "Starting new container..."
-docker run -d -p 8000:8000 $IMAGE
+docker run -d -p 8000:8000 --name simple-node-app $IMAGE
 
 echo "Checking if container is running..."
-docker ps | grep nodeapp || echo "Container failed to start"
+docker ps | grep simple-node-app || echo "Container failed to start"
 
 echo "Done"
