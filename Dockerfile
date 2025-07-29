@@ -1,11 +1,22 @@
-FROM node:18-alpine
+FROM node:18
 
+# Set working directory
 WORKDIR /app
 
+# Install dependencies
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+# Copy source files
+COPY tsconfig.json ./
+COPY src ./src
+COPY public ./public  # 👈 static files must be available at runtime
 
+# Build TypeScript
+RUN npm run build
+
+# Expose the app port
 EXPOSE 8000
-CMD ["npm", "start"]
+
+# Run compiled app
+CMD ["node", "dist/app.js"]

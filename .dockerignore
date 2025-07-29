@@ -1,0 +1,9 @@
+node_modules
+dist
+scripts
+.git
+.gitignore
+*.md
+*.log
+appspec.yml
+buildspec.yml

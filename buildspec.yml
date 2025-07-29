@@ -2,41 +2,41 @@ version: 0.2
 
 env:
   variables:
+    IMAGE_TAG: latest
     AWS_REGION: ap-south-1
-    IMAGE_REPO_NAME: simple-node-app
+    ECR_REPO: simple-node-app
+    ACCOUNT_ID: 979566283645
 
 phases:
   install:
     runtime-versions:
-      nodejs: 18  
+      nodejs: 18
     commands:
-      - echo Installing dependencies...
+      - echo Installing npm dependencies...
       - npm install
 
   pre_build:
     commands:
+      - echo Compiling TypeScript...
+      - npm run build
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 979566283645.dkr.ecr.$AWS_REGION.amazonaws.com
-      - REPO_URI=979566283645.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t $REPO_URI:$IMAGE_TAG .
-      - docker tag $REPO_URI:$IMAGE_TAG $REPO_URI:latest
-      - npm run build
+      - docker build -t $ECR_REPO:$IMAGE_TAG .
+      - docker tag $ECR_REPO:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
 
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $REPO_URI:$IMAGE_TAG
-      - docker push $REPO_URI:latest
-      - echo Build and push complete.
+      - echo Pushing image to ECR...
+      - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+      - echo Generating imagedefinitions.json for CodeDeploy...
+      - printf '[{"name":"nodeapp","imageUri":"%s"}]' $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
     - appspec.yml
-    - dist/**/*
+    - imagedefinitions.json
     - scripts/**/*
-    - package.json
