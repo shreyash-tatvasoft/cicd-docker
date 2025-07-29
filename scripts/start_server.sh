@@ -1,15 +1,25 @@
 #!/bin/bash
 
-echo "Starting Docker container for static site..."
+set -e
 
-# Define variables
 ACCOUNT_ID=979566283645
 REPO_NAME=simple-node-app
+IMAGE="$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/$REPO_NAME:latest"
 
+echo "Navigating to app directory..."
 cd /home/ec2-user/app
 
-docker pull $ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/$REPO_NAME:latest
+echo "Pulling Docker image..."
+docker pull $IMAGE
 
-docker run -d -p 8000:8000 --name nodeapp $ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/$REPO_NAME:latest
+echo "Stopping old container if it exists..."
+docker stop nodeapp || true
+docker rm nodeapp || true
 
-echo "Application is running on port 8000"
+echo "Starting new container..."
+docker run -d -p 8000:8000 $IMAGE
+
+echo "Checking if container is running..."
+docker ps | grep nodeapp || echo "Container failed to start"
+
+echo "Done"
