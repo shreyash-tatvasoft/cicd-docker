@@ -3,11 +3,15 @@
 set -e
 
 ACCOUNT_ID=979566283645
+REGION=ap-south-1
 REPO_NAME=simple-node-app
-IMAGE="$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/$REPO_NAME:latest"
+IMAGE="$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME:latest"
 
 echo "Navigating to app directory..."
 cd /home/ec2-user/app
+
+echo "Logging in to ECR..."
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
 echo "Pulling Docker image..."
 docker pull $IMAGE
