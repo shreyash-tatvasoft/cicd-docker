@@ -1,4 +1,4 @@
-FROM node:18
+FROM public.ecr.aws/library/node:18
 
 # Set working directory
 WORKDIR /app
